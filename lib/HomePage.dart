@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,10 +10,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Stopwatch stopwatch;
-  void handleStartStop() {}
+  late Timer t;
+  void handleStartStop() {
+    if (stopwatch.isRunning)
+      stopwatch.stop();
+    else
+      stopwatch.start();
+  }
 
   String returnFormattedText() {
-    return "";
+    var milli = stopwatch.elapsed.inMilliseconds;
+    String milliseconds = (milli % 1000).toString().padLeft(3, "0");
+    String seconds = ((milli ~/ 1000) % 60).toString().padLeft(2, "0");
+    String minutes = ((milli ~/ 1000) ~/ 60).toString().padLeft(2, "0");
+    // String milliseconds =
+    return "$minutes:$seconds:$milliseconds";
   }
 
   @override
@@ -19,6 +32,10 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     stopwatch = Stopwatch();
     super.initState();
+
+    t = Timer.periodic(Duration(milliseconds: 30), (timer) {
+      setState(() {});
+    });
   }
 
   @override
@@ -30,16 +47,18 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CupertinoButton(
-              onPressed: () {},
+              onPressed: () {
+                handleStartStop();
+              },
               child: Container(
                 alignment: Alignment.center,
                 height: 250,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.blue, width: 10)),
-                child: const Text(
-                  "00:00:000",
-                  style: TextStyle(
+                child: Text(
+                  returnFormattedText(),
+                  style: const TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
                       color: Colors.black),
@@ -47,13 +66,16 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             CupertinoButton(
-              child: Text(
+              onPressed: () {
+                stopwatch.reset();
+                stopwatch.stop();
+              },
+              padding: const EdgeInsets.all(0),
+              child: const Text(
                 "Reset",
                 style:
                     TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
-              onPressed: () {},
-              padding: EdgeInsets.all(0),
             )
           ],
         ),
